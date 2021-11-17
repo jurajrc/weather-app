@@ -24,14 +24,14 @@ const Header = () => {
 
 const StyleHeader = styled.header`
     max-width: 100%;
-    height: 6vh;
+    min-height: 6vh;
     background: #0000007b;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 15%;
     color: #fff;
-    @media (max-width: 500px) {
+    @media (max-width: 770px) {
       padding: 0 10%;
     }
     .left {
