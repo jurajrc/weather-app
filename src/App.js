@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import './App.css';
 import axios from 'axios';
 // Components
@@ -15,9 +15,7 @@ import { animeResult } from './animations';
 function App() {
   // useState
   const [weather, setWeather] = useState(null)
-  //const [weather2, setWeather2] = useState(null)
 
-  const [input, setInput] = useState("")
   const [input2, setInput2] = useState("")
 
   const [location, setLocation] = useState(null)
@@ -26,64 +24,57 @@ function App() {
   const [afterTomorrow, setAftertomorrow] = useState(null)
   
   
-  useEffect(() => {
-     axios.get(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_WEATHER_API}&q=Poprad&aqi=yes&lang=sk`)
-    .then(data => {
-      setWeather(data.data);
-    })
-    .catch(err => console.log(err))
-  }, [])
+  // useEffect( async () => { 
+  //   await axios.get(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_WEATHER_API}&q=Poprad&aqi=yes&lang=sk`)
+  //   .then(data => {
+  //     setWeather(data.data);
+  //   })
+  //   .catch(err => console.log(err))
+  // }, [])
 
-
-  
 // event form
-const weatherImput = (e) => {
-  setInput(e.target.value);
-}
 const weatherImput2 = (e) => {
   setInput2(e.target.value);
 }
 
-const searchWeather = async (e) => {
+ const searchWeather2 = async (e) => {
   e.preventDefault()
-  if(input !== ""){
-    await axios.get(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_WEATHER_API}&q=${input2}&aqi=yes&days=5&lang=sk`)
+  console.log(input2);
+  if(input2 !== ""){
+    await axios.get(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_WEATHER_API}&q=${input2.toLowerCase()}&aqi=yes&days=5&lang=sk`)
     .then(data => {
       setWeather(data.data);
+      console.log(data.data);
     })
     .catch(err => console.log(err))
-    setTimeout(() => {
-    }, 100);
-    setInput("")
+    
+    //console.log(weather);
   } else {
     alert("Zdajte oblasť prosím")
   }
-  //console.log(weather);
-}
- const searchWeather2 = async (e) => {
-  e.preventDefault()
+
   if(input2 !== "") {
-    await  axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_WEATHER_API}&q=${input2}&aqi=yes&days=5&lang=sk`)
+    await  axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_WEATHER_API}&q=${input2.toLowerCase()}&aqi=yes&days=5&lang=sk`)
     .then(data => {
       setLocation(data.data.location);
       setToday(data.data.forecast.forecastday[0])
       setTomorrow(data.data.forecast.forecastday[1])
       setAftertomorrow(data.data.forecast.forecastday[2])
     })
-    .catch(err => console.log(err))
-    setTimeout(() => {
-    }, 100);
+    .catch(err => {
+      console.log(err)
+      alert(`Mesto ${input2} sa v databaze nenacházda.`)
+    })
+    
     setInput2("")
 
   }
-  if(today) {
-    console.log(location);
-    console.log(today);
-    console.log(tomorrow);
-    console.log(afterTomorrow);
-  } else {
-    alert("data sa neuložili")
-  }
+  // if(today) {
+  //   console.log(location);
+  //   console.log(today);
+  //   console.log(tomorrow);
+  //   console.log(afterTomorrow);
+  // }
 }
 
 // zmena km/h na m/s + zaokruhlenie
@@ -94,14 +85,12 @@ const fixedNumber = km => ((km * 1000) / 60 / 60).toFixed(1)
       <Header />
         <StyleFullView variants={animeResult} initial="hidden" animate="show" exit="exit">
           <div className="content">
-            {/* <form className="search">
-              <input onChange={weatherImput} value={input} type="text" />
-              <button onClick={searchWeather} >Hladať</button>
-            </form> */}
+            
             <form className="search2">
-              <input onChange={weatherImput2} value={input2} type="text" />
-              <button onClick={ searchWeather, searchWeather2 } >Hladať</button>
+              <input onChange={weatherImput2} value={input2} type="text" placeholder='Zadaj mesto' autoFocus />
+              <button onClick={ searchWeather2 } >Hladať</button>
             </form>
+
             { today && (
               <ActualResult>
                 <StyleLocation>
@@ -122,7 +111,7 @@ const fixedNumber = km => ((km * 1000) / 60 / 60).toFixed(1)
                       <p>{today.day.maxtemp_c} &#8451;</p>
                     </div>
                     <div className="block under">
-                      <p>Max</p>
+                      <p>Min</p>
                       <p>{today.day.mintemp_c} &#8451;</p>
                     </div>
                     <div className="block under">
@@ -159,7 +148,7 @@ const StyleApp = styled.div`
   background-image: url(./image/2-b.jpg);
   background-position: center;
   background-size: cover;
-  
+  overflow-x: hidden;
 `
 
 const StyleFullView = styled(motion.div)`
@@ -180,6 +169,7 @@ const StyleFullView = styled(motion.div)`
       padding: 1em 0;
     }
 
+    
     input {
       width: 100%;
       height: 2.2em;
@@ -189,6 +179,9 @@ const StyleFullView = styled(motion.div)`
       outline: none;
       text-align: center;
       color: #fff;
+      ::placeholder {
+      color: #e7e7e7;
+      }
     }
     button {
       padding: 0.4em 1.5em 0.4em 1.5em;
@@ -263,21 +256,6 @@ const StyleBlockWrap = styled.div`
     justify-content: center;
   }
   
-`
-const StyleResult = styled.article`
-  background: #0000007b;
-  color: #e7e7e7;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
-  p {
-    font-size: 0.7em;
-  }
-`
-const OneLine = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
 `
 
 export default App;
