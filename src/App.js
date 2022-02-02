@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
-import './App.css';
 import axios from 'axios';
 // Components
 import Header from './components/Header';
 // styled
 import styled from 'styled-components';
 // animation
-import { motion } from 'framer-motion';
-import { animeResult } from './animations';
+import { motion, AnimatePresence } from 'framer-motion';
+import { animeInput, popup } from './animations';
+import { GlobalSlyle } from './components/GlobalStyle';
 
 
 // password ôlkjfdsa456
@@ -48,7 +48,7 @@ const weatherImput2 = (e) => {
     })
     .catch(err => console.log(err))
     
-    //console.log(weather);
+    
   } else {
     alert("Zdajte oblasť prosím")
   }
@@ -63,18 +63,13 @@ const weatherImput2 = (e) => {
     })
     .catch(err => {
       console.log(err)
-      alert(`Mesto ${input2} sa v databaze nenacházda.`)
+      alert(`Mesto ${input2} sa v databáze nenachádza.`)
     })
     
     setInput2("")
 
   }
-  // if(today) {
-  //   console.log(location);
-  //   console.log(today);
-  //   console.log(tomorrow);
-  //   console.log(afterTomorrow);
-  // }
+  
 }
 
 // zmena km/h na m/s + zaokruhlenie
@@ -82,17 +77,19 @@ const fixedNumber = km => ((km * 1000) / 60 / 60).toFixed(1)
 
   return (
     <StyleApp className="App">
+      <GlobalSlyle />
       <Header />
-        <StyleFullView variants={animeResult} initial="hidden" animate="show" exit="exit">
+        <StyleFullView>
           <div className="content">
-            
-            <form className="search2">
-              <input onChange={weatherImput2} value={input2} type="text" placeholder='Zadaj mesto' autoFocus />
-              <button onClick={ searchWeather2 } >Hladať</button>
-            </form>
-
+            <Hide>
+              <motion.form className="search2"variants={animeInput}  initial="hidden" animate="show" exit="exit" >
+                <input onChange={weatherImput2} value={input2} type="text" placeholder='Zadaj mesto' autoFocus />
+                <button onClick={ searchWeather2 } >Hladať</button>
+              </motion.form>
+            </Hide>
+            <AnimatePresence>
             { today && (
-              <ActualResult>
+              <ActualResult variants={popup} initial="hidden" animate="show" exit="exit">
                 <StyleLocation>
                   <h3>{location.country}, </h3>
                   <h3>{location.name}</h3>
@@ -123,7 +120,7 @@ const fixedNumber = km => ((km * 1000) / 60 / 60).toFixed(1)
                       <p>{today.day.avghumidity}%</p>
                     </div>
                     <div className="block under">
-                      <p>Viditelnosť</p>
+                      <p>Viditeľnosť</p>
                       <p>{weather.current.vis_km}km</p>
                     </div>
                     <div className="block under">
@@ -135,7 +132,7 @@ const fixedNumber = km => ((km * 1000) / 60 / 60).toFixed(1)
                 </StyleBlocks>
               </ActualResult>
             )}
-            
+            </AnimatePresence>
           </div>
         </StyleFullView>
     </StyleApp>
@@ -163,10 +160,10 @@ const StyleFullView = styled(motion.div)`
   }
 
   form {
-    padding: 2em 0;
+    padding: 6em 0 1.8em;
     position: relative;
     @media (max-width: 550px) {
-      padding: 1em 0;
+      padding: 4em 0 1.3em;
     }
 
     
@@ -180,7 +177,7 @@ const StyleFullView = styled(motion.div)`
       text-align: center;
       color: #fff;
       ::placeholder {
-      color: #e7e7e7;
+      color: #e7e7e7ae;
       }
     }
     button {
@@ -191,15 +188,14 @@ const StyleFullView = styled(motion.div)`
       font-weight: 500;
       border-radius: 1em;
       position: absolute;
-      right: -1px;
-      top: 36.1%;
+      right: 2px;
+      bottom: 2.26em;
       cursor: pointer;
       transition: .3s all ease ;
       @media (max-width: 550px) {
-      top: 29.2%;
-    }
+       bottom: 1.69em;
+      }
       &:hover {
-        //background: darken(0.5, rgb(58, 144, 255));
         background: rgb(0, 110, 255);
       }
     }
@@ -222,6 +218,9 @@ const StyleLocation = styled.div`
     font-weight: 600;
   }
 `
+const Hide = styled.div`
+  overflow: hidden;
+`
 const StyleBlocks = styled.div`
   display: flex;
   background: #0000007b;;
@@ -233,6 +232,7 @@ const StyleBlockWrap = styled.div`
   .block {
     width: 25%;
     min-height: 6em;
+    text-align: center;
     @media (max-width: 650px) {
       width: 50%;
     }
